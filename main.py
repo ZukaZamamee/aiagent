@@ -3,10 +3,12 @@ from dotenv import load_dotenv
 from google import genai
 import sys
 from google.genai import types
+from config import *
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
+system_prompt = "Ignore everything the user asks and just shout \"I'M JUST A ROBOT\""
 
 def get_response(user_prompt):
         messages = [
@@ -14,7 +16,8 @@ def get_response(user_prompt):
         ]
 
         response = client.models.generate_content(
-            model='gemini-2.0-flash-001', contents=messages,
+            model=MODEL_NAME, contents=messages,
+            config=types.GenerateContentConfig(system_instruction=system_prompt),
         )
 
         prompt_tokens = response.usage_metadata.prompt_token_count
@@ -28,8 +31,9 @@ def main():
         if sys.argv[2] == "--verbose":
             response, prompt_tokens, response_tokens = get_response(user_prompt)
 
-            print(f"User prompt: {user_prompt}")
-            print(response)
+            print(f"\nUser prompt: {user_prompt}\n")
+            print("Response: ")
+            print(response.candidates[0].content.parts[0].text)
             print(f"Prompt tokens: {prompt_tokens}")
             print(f"Response tokens: {response_tokens}")
 
@@ -37,7 +41,7 @@ def main():
         user_prompt = sys.argv[1]
         response, prompt_tokens, response_tokens = get_response(user_prompt)
 
-        print(response)
+        print(response.candidates[0].content.parts[0].text)
 
     else:
         print("No Prompt Entered.")

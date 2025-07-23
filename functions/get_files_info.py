@@ -26,4 +26,3 @@ def get_files_info(working_directory, directory="."):
         return "\n".join(dir_contents_string_list)
     except:
         return f"Error: something went wrong"
-    
