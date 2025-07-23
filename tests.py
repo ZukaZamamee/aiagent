@@ -1,6 +1,7 @@
 #tests.py
-from functions.get_files_info import get_files_info
-from functions.get_file_content import get_file_content
+#from functions.get_files_info import get_files_info
+#from functions.get_file_content import get_file_content
+from functions.write_file import write_file
 
 #print("Result for current directory:")
 #result = get_files_info("calculator", ".")
@@ -22,18 +23,30 @@ from functions.get_file_content import get_file_content
 #result = get_file_content("calculator", "lorem.txt")
 #print(result)
 
-print("\nResult for 'main.py' file:")
-result = get_file_content("calculator", "main.py")
+#print("\nResult for 'main.py' file:")
+#result = get_file_content("calculator", "main.py")
+#print(result)
+
+#print("\nResult for 'pkg/calculator.py' file:")
+#result = get_file_content("calculator", "pkg/calculator.py")
+#print(result)
+
+#print("\nResult for '/bin/cat' file:")
+#result = get_file_content("calculator", "/bin/cat")
+#print(result)
+
+#print("\nResult for 'pkg/does_not_exist.py' file:")
+#result = get_file_content("calculator", "pkg/does_not_exist.py")
+#print(result)
+
+print("\nResult for \"wait, this isn't lorem ipsum\"")
+result = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
 print(result)
 
-print("\nResult for 'pkg/calculator.py' file:")
-result = get_file_content("calculator", "pkg/calculator.py")
+print("\nResult for \"lorem ipsum dolor sit amet\" in \"pkg/morelorem.txt\"")
+result = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
 print(result)
 
-print("\nResult for '/bin/cat' file:")
-result = get_file_content("calculator", "/bin/cat")
-print(result)
-
-print("\nResult for 'pkg/does_not_exist.py' file:")
-result = get_file_content("calculator", "pkg/does_not_exist.py")
+print("\nResult for \"this should not be allowed\" in \"/tmp/temp.txt\"")
+result = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
 print(result)
