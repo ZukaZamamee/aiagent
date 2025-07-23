@@ -1,6 +1,7 @@
 import os
 import subprocess
 from config import MAX_RUN_TIME
+from google.genai import types # type: ignore
 
 def run_python_file(working_directory, file_path, args=[]):
     full_file_path = os.path.join(working_directory, file_path)
@@ -41,3 +42,24 @@ def run_python_file(working_directory, file_path, args=[]):
 
     except Exception as e:
         return f"Error: executing Python file: {e}"
+    
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Runs the python file at the specified file path, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The file path of a python file to run, relative to the working directory. If not provided or not a python file, returns an error",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="Optional arguments for the specified python file",
+                items=types.Schema(
+                    type=types.Type.STRING,
+                ),
+            ),
+        },
+    ),
+)
