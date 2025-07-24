@@ -8,6 +8,7 @@ from functions.get_files_info import schema_get_files_info
 from functions.get_file_content import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
+from functions.call_function import call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -49,28 +50,57 @@ def get_response(user_prompt):
         prompt_tokens = response.usage_metadata.prompt_token_count
         response_tokens = response.usage_metadata.candidates_token_count
 
-        for part in response.candidates[0].content.parts:
-            if hasattr(part, 'function_call'):
-                function_call = part.function_call
-                print(f"Calling function: {function_call.name}({function_call.args})")
-            elif hasattr(part, 'text') and part.text:
-                print(part.text)
-
         return response, prompt_tokens, response_tokens
 
 def main():
     if len(sys.argv) > 2:
         user_prompt = sys.argv[1]
+        response, prompt_tokens, response_tokens = get_response(user_prompt)
+                    
         if sys.argv[2] == "--verbose":
-            response, prompt_tokens, response_tokens = get_response(user_prompt)
-
             print(f"\nUser prompt: {user_prompt}\n")
             print(f"Prompt tokens: {prompt_tokens}")
             print(f"Response tokens: {response_tokens}")
 
+            for part in response.candidates[0].content.parts:
+                if hasattr(part, 'function_call'):
+                    function_call = part.function_call
+                    #print(f"Calling function: {function_call.name}({function_call.args})")
+                    function_call_result = call_function(function_call, True)
+
+                    
+                    if not hasattr(function_call_result, 'parts') or \
+                            not function_call_result.parts or \
+                            not hasattr(function_call_result.parts[0], 'function_response') or \
+                            not hasattr(function_call_result.parts[0].function_response, 'response'):
+                                raise Exception("A fatal error has occurred: Unexpected function response structure.")
+                
+                    print(f"-> {function_call_result.parts[0].function_response.response}")
+            
+                elif hasattr(part, 'text') and part.text:
+                    print(part.text)
+
+
     elif len(sys.argv) > 1:
         user_prompt = sys.argv[1]
         response, prompt_tokens, response_tokens = get_response(user_prompt)
+
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, 'function_call'):
+                function_call = part.function_call
+                #print(f"Calling function: {function_call.name}({function_call.args})")
+                function_call_result = call_function(function_call)
+
+                if not hasattr(function_call_result, 'parts') or \
+                    not function_call_result.parts or \
+                    not hasattr(function_call_result.parts[0], 'function_response') or \
+                    not hasattr(function_call_result.parts[0].function_response, 'response'):
+                        raise Exception("A fatal error has occurred: Unexpected function response structure.")
+                
+            elif hasattr(part, 'text') and part.text:
+                print(part.text)     
+
+
 
     else:
         print("No Prompt Entered.")
